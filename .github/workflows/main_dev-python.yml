@@ -67,3 +67,23 @@ jobs:
           app-name: 'DEV-PYTHON'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_55AC65A1D13245DBBD455A16930B72A4 }}
+
+
+  scan-with-dastardly:
+    name: Scan with Dastardly
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Run Dastardly Scan
+        uses: PortSwigger/dastardly-github-action@main
+        with:
+          target-url: 'https://dev-python-eae5bxc3f7ftcqat.eastus-01.azurewebsites.net/'
+
+      - name: Publish Dastardly Scan Report
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          check_name: 'Dastardly Scan Report'
+          report_paths: '**/dastardly-report.xml'
+          require_tests: true
